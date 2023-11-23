@@ -1,0 +1,23 @@
+stages:
+- action
+
+Action-job:
+    stage: action
+    variables:
+        msdeploy: MSDeploy                         
+        appName: phoenix/amr_a
+        from: \dist\amr_a
+    script:
+    - echo "Restoring NPM packages..."
+    - npm install
+    - echo "Build project..."
+    - npm run build
+    - echo "Deploy project..."
+    - Start-Process $msdeploy -ArgumentList "-source:iisApp='$PWD$from' -dest:iisApp='$appName',computerName=app05,includeAcls=False -verb:sync -allowUntrusted" -NoNewWindow -Wait
+    after_script:
+    - CHCP 65001
+    - echo "Cleaning stage area off too long path files..."
+    - DLP        
+    only:
+        refs:
+        - master
